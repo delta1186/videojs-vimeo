@@ -15,27 +15,29 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
-/*global define, VimeoPlayer*/
-import VimeoPlayer from '@vimeo/player';
-
-(function (root, factory) {
+/* global define, VimeoPlayer*/
+(function(root, factory) {
   if (typeof exports === 'object' && typeof module !== 'undefined') {
-    var videojs = require('video.js');
+    const videojs = require('video.js');
+
     module.exports = factory(videojs.default || videojs);
   } else if (typeof define === 'function' && define.amd) {
-    define(['videojs'], function (videojs) {
+    define(['videojs'], function(videojs) {
       return (root.Vimeo = factory(videojs));
     });
   } else {
     root.Vimeo = factory(root.videojs);
   }
-}(this, function (videojs) {
+})(this, function(videojs) {
   'use strict';
 
-  var _isOnMobile = videojs.browser.IS_IOS || videojs.browser.IS_NATIVE_ANDROID;
-  var Tech = videojs.getTech('Tech');
+  const VimeoPlayer = require('@vimeo/player');
 
-  var Vimeo = videojs.extend(Tech, {
+  const _isOnMobile =
+    videojs.browser.IS_IOS || videojs.browser.IS_NATIVE_ANDROID;
+  const Tech = videojs.getTech('Tech');
+
+  const Vimeo = videojs.extend(Tech, {
     // constructor(options, ready) {
     //   super(options, ready);
 
@@ -43,15 +45,15 @@ import VimeoPlayer from '@vimeo/player';
     //   this.setPoster(options.poster);
     //   this.initVimeoPlayer();
     // }
-    constructor: function (options, ready) {
+    constructor(options, ready) {
       Tech.call(this, options, ready);
 
       this.setPoster(options.poster);
-      //this.setSrc(this.options_.source, true);
+      // this.setSrc(this.options_.source, true);
 
       // Set the vjs-vimeo class to the player
       // Parent is not set yet so we have to wait a tick
-      this.setTimeout(function () {
+      this.setTimeout(function() {
         if (this.el_) {
           this.el_.parentNode.className += ' vjs-vimeo';
 
@@ -68,7 +70,7 @@ import VimeoPlayer from '@vimeo/player';
       }.bind(this));
     },
 
-    initVimeoPlayer: function () {
+    initVimeoPlayer() {
       const vimeoOptions = {
         url: this.options_.source.src,
         byline: false,
@@ -102,7 +104,7 @@ import VimeoPlayer from '@vimeo/player';
       this._player = new VimeoPlayer(this.el(), vimeoOptions);
       this.initVimeoState();
 
-      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach(e => {
+      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach((e) => {
         this._player.on(e, (progress) => {
           if (this._vimeoState.progress.duration !== progress.duration) {
             this.trigger('durationchange');
@@ -112,7 +114,7 @@ import VimeoPlayer from '@vimeo/player';
         });
       });
 
-      this._player.on('pause', () => this._vimeoState.playing = false);
+      this._player.on('pause', () => (this._vimeoState.playing = false));
       this._player.on('play', () => {
         this._vimeoState.playing = true;
         this._vimeoState.ended = false;
@@ -121,14 +123,14 @@ import VimeoPlayer from '@vimeo/player';
         this._vimeoState.playing = false;
         this._vimeoState.ended = true;
       });
-      this._player.on('volumechange', (v) => this._vimeoState.volume = v);
-      this._player.on('error', e => this.trigger('error', e));
+      this._player.on('volumechange', (v) => (this._vimeoState.volume = v));
+      this._player.on('error', (e) => this.trigger('error', e));
 
       this.triggerReady();
     },
 
-    initVimeoState: function () {
-      const state = this._vimeoState = {
+    initVimeoState() {
+      const state = (this._vimeoState = {
         ended: false,
         playing: false,
         volume: 0,
@@ -137,30 +139,43 @@ import VimeoPlayer from '@vimeo/player';
           percent: 0,
           duration: 0
         }
-      };
+      });
 
-      this._player.getCurrentTime().then(time => state.progress.seconds = time);
-      this._player.getDuration().then(time => state.progress.duration = time);
-      this._player.getPaused().then(paused => state.playing = !paused);
-      this._player.getVolume().then(volume => state.volume = volume);
+      this._player
+        .getCurrentTime()
+        .then((time) => (state.progress.seconds = time));
+      this._player
+        .getDuration()
+        .then((time) => (state.progress.duration = time));
+      this._player.getPaused().then((paused) => (state.playing = !paused));
+      this._player.getVolume().then((volume) => (state.volume = volume));
     },
 
-    createEl: function () {
-      var div = document.createElement('div');
+    createEl() {
+      const div = document.createElement('div');
+
       div.setAttribute('id', this.options_.techId);
-      div.setAttribute('style', 'width:100%;height:100%;top:0;left:0;position:absolute');
+      div.setAttribute(
+        'style',
+        'width:100%;height:100%;top:0;left:0;position:absolute'
+      );
       div.setAttribute('class', 'vjs-tech');
 
-      var divWrapper = document.createElement('div');
+      const divWrapper = document.createElement('div');
+
       divWrapper.appendChild(div);
 
       if (!_isOnMobile && !this.options_.ytControls) {
-        var divBlocker = document.createElement('div');
+        const divBlocker = document.createElement('div');
+
         divBlocker.setAttribute('class', 'vjs-iframe-blocker');
-        divBlocker.setAttribute('style', 'position:absolute;top:0;left:0;width:100%;height:100%');
+        divBlocker.setAttribute(
+          'style',
+          'position:absolute;top:0;left:0;width:100%;height:100%'
+        );
 
         // In case the blocker is still there and we want to pause
-        divBlocker.onclick = function () {
+        divBlocker.onclick = function() {
           this.pause();
         }.bind(this);
 
@@ -170,47 +185,47 @@ import VimeoPlayer from '@vimeo/player';
       return divWrapper;
     },
 
-    controls: function () {
+    controls() {
       return true;
     },
 
-    supportsFullScreen: function () {
+    supportsFullScreen() {
       return true;
     },
 
-    src: function () {
+    src() {
       // @note: Not sure why this is needed but videojs requires it
       return this.options_.source;
     },
 
-    currentSrc: function () {
+    currentSrc() {
       return this.options_.source.src;
     },
 
     // @note setSrc is used in other usecases (YouTube, Html) it doesn't seem required here
     // setSrc() {}
 
-    currentTime: function () {
+    currentTime() {
       return this._vimeoState.progress.seconds;
     },
 
-    setCurrentTime: function (time) {
+    setCurrentTime(time) {
       this._player.setCurrentTime(time);
     },
 
-    volume: function () {
+    volume() {
       return this._vimeoState.volume;
     },
 
-    setVolume: function (volume) {
+    setVolume(volume) {
       return this._player.setVolume(volume);
     },
 
-    muted: function () {
+    muted() {
       return this._vimeoState.volume === 0;
     },
 
-    setMuted: function (mute) {
+    setMuted(mute) {
       // if (this.muted()) {
       //   mute = false;
       //   this._vimeoState.volume = 1;
@@ -218,65 +233,64 @@ import VimeoPlayer from '@vimeo/player';
       //   this._vimeoState.volume = 0;
       // }
 
-      this._player.setMuted(mute);   
+      this._player.setMuted(mute);
 
-      this.setTimeout(function () {
+      this.setTimeout(function() {
         this.trigger('volumechange');
       }, 50);
     },
 
-    duration: function () {
+    duration() {
       return this._vimeoState.progress.duration;
     },
 
-    buffered: function () {
+    buffered() {
       const progress = this._vimeoState.progress;
 
       return videojs.createTimeRange(0, progress.percent * progress.duration);
     },
 
-    paused: function () {
+    paused() {
       return !this._vimeoState.playing;
     },
 
-    pause: function () {
+    pause() {
       this._player.pause();
     },
 
-    play: function () {
+    play() {
       this._player.play();
     },
 
-    ended: function () {
+    ended() {
       return this._vimeoState.ended;
     },
 
-    playbackRate: function () {
+    playbackRate() {
       return this._player ? this._player.getPlaybackRate() : 1;
     },
 
-    setPlaybackRate: function (suggestedRate) {
+    setPlaybackRate(suggestedRate) {
       if (!this._player) {
         return;
       }
 
       this._player.setPlaybackRate(suggestedRate);
     }
-
   });
 
   // Vimeo.prototype.featuresTimeupdateEvents = true;
 
-  Vimeo.isSupported = function () {
+  Vimeo.isSupported = function() {
     return true;
   };
 
-  Vimeo.canPlaySource = function (e) {
+  Vimeo.canPlaySource = function(e) {
     return Vimeo.canPlayType(e.type);
   };
 
-  Vimeo.canPlayType = function (e) {
-    return (e === 'video/vimeo');
+  Vimeo.canPlayType = function(e) {
+    return e === 'video/vimeo';
   };
   // // Add Source Handler pattern functions to this tech
   // Tech.withSourceHandlers(Vimeo);
@@ -307,37 +321,38 @@ import VimeoPlayer from '@vimeo/player';
   // };
 
   // @note: Copied over from YouTube — not sure this is relevant
-  //Vimeo.nativeSourceHandler.dispose = function () {};
+  // Vimeo.nativeSourceHandler.dispose = function () {};
 
-  //Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
+  // Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
 
   // Include the version number.
   Vimeo.VERSION = '0.1.1';
 
-
-  //ported over code from youtube
+  // ported over code from youtube
 
   function apiLoaded() {
-    //Vimeo._player.ready().then(function () {
+    // Vimeo._player.ready().then(function () {
     Vimeo.isApiReady = true;
 
-    for (var i = 0; i < Vimeo.apiReadyQueue.length; ++i) {
+    for (let i = 0; i < Vimeo.apiReadyQueue.length; ++i) {
       Vimeo.apiReadyQueue[i].initVimeoPlayer();
     }
-    //});
+    // });
   }
 
+  // iframe blocker to catch mouse events
   function injectCss() {
-    var css = // iframe blocker to catch mouse events
+    const css =
       '.vjs-vimeo .vjs-iframe-blocker { display: none; }' +
       '.vjs-vimeo.vjs-user-inactive .vjs-iframe-blocker { display: block; }' +
       '.vjs-vimeo .vjs-poster { background-size: cover; }' +
       '.vjs-vimeo-mobile .vjs-big-play-button { display: none; }' +
       '.vjs-vimeo iframe { position: absolute; top: 0; left: 0; width: 100%; height:100%; }';
 
-    var head = document.head || document.getElementsByTagName('head')[0];
+    const head = document.head || document.getElementsByTagName('head')[0];
 
-    var style = document.createElement('style');
+    const style = document.createElement('style');
+
     style.type = 'text/css';
 
     if (style.styleSheet) {
@@ -362,4 +377,4 @@ import VimeoPlayer from '@vimeo/player';
   } else {
     videojs.registerComponent('Vimeo', Vimeo);
   }
-}));
+});

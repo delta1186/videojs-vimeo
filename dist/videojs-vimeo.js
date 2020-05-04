@@ -2459,35 +2459,30 @@ process.umask = function() { return 0; };
 (function (global){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /* The MIT License (MIT)
-                                                                                                                                                                                                                                                                              Copyright (c) 2014-2015 Benoit Tremblay <trembl.ben@gmail.com>
-                                                                                                                                                                                                                                                                              Permission is hereby granted, free of charge, to any person obtaining a copy
-                                                                                                                                                                                                                                                                              of this software and associated documentation files (the "Software"), to deal
-                                                                                                                                                                                                                                                                              in the Software without restriction, including without limitation the rights
-                                                                                                                                                                                                                                                                              to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                                                                                                                                                                                                                                                                              copies of the Software, and to permit persons to whom the Software is
-                                                                                                                                                                                                                                                                              furnished to do so, subject to the following conditions:
-                                                                                                                                                                                                                                                                              The above copyright notice and this permission notice shall be included in
-                                                                                                                                                                                                                                                                              all copies or substantial portions of the Software.
-                                                                                                                                                                                                                                                                              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                                                                                                                                                                                                                                                                              IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                                                                                                                                                                                                                                                                              FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                                                                                                                                                                                                                                                                              AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                                                                                                                                                                                                                                                                              LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                                                                                                                                                                                                                                                                              OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-                                                                                                                                                                                                                                                                              THE SOFTWARE. */
-/*global define, VimeoPlayer*/
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-
-var _player = require('@vimeo/player');
-
-var _player2 = _interopRequireDefault(_player);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+/* The MIT License (MIT)
+Copyright (c) 2014-2015 Benoit Tremblay <trembl.ben@gmail.com>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE. */
+/* global define, VimeoPlayer*/
 (function (root, factory) {
   if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object' && typeof module !== 'undefined') {
     var videojs = (typeof window !== "undefined" ? window['videojs'] : typeof global !== "undefined" ? global['videojs'] : null);
+
     module.exports = factory(videojs.default || videojs);
   } else if (typeof define === 'function' && define.amd) {
     define(['videojs'], function (videojs) {
@@ -2498,6 +2493,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }
 })(undefined, function (videojs) {
   'use strict';
+
+  var VimeoPlayer = require('@vimeo/player');
 
   var _isOnMobile = videojs.browser.IS_IOS || videojs.browser.IS_NATIVE_ANDROID;
   var Tech = videojs.getTech('Tech');
@@ -2514,7 +2511,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
       Tech.call(this, options, ready);
 
       this.setPoster(options.poster);
-      //this.setSrc(this.options_.source, true);
+      // this.setSrc(this.options_.source, true);
 
       // Set the vjs-vimeo class to the player
       // Parent is not set yet so we have to wait a tick
@@ -2534,7 +2531,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         }
       }.bind(this));
     },
-
     initVimeoPlayer: function initVimeoPlayer() {
       var _this = this;
 
@@ -2568,7 +2564,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         vimeoOptions.color = this.options_.color.replace(/^#/, '');
       }
 
-      this._player = new _player2.default(this.el(), vimeoOptions);
+      this._player = new VimeoPlayer(this.el(), vimeoOptions);
       this.initVimeoState();
 
       ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach(function (e) {
@@ -2601,7 +2597,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
       this.triggerReady();
     },
-
     initVimeoState: function initVimeoState() {
       var state = this._vimeoState = {
         ended: false,
@@ -2627,18 +2622,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         return state.volume = volume;
       });
     },
-
     createEl: function createEl() {
       var div = document.createElement('div');
+
       div.setAttribute('id', this.options_.techId);
       div.setAttribute('style', 'width:100%;height:100%;top:0;left:0;position:absolute');
       div.setAttribute('class', 'vjs-tech');
 
       var divWrapper = document.createElement('div');
+
       divWrapper.appendChild(div);
 
       if (!_isOnMobile && !this.options_.ytControls) {
         var divBlocker = document.createElement('div');
+
         divBlocker.setAttribute('class', 'vjs-iframe-blocker');
         divBlocker.setAttribute('style', 'position:absolute;top:0;left:0;width:100%;height:100%');
 
@@ -2652,23 +2649,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
       return divWrapper;
     },
-
     controls: function controls() {
       return true;
     },
-
     supportsFullScreen: function supportsFullScreen() {
       return true;
     },
-
     src: function src() {
       // @note: Not sure why this is needed but videojs requires it
       return this.options_.source;
     },
-
     currentSrc: function currentSrc() {
       return this.options_.source.src;
     },
+
 
     // @note setSrc is used in other usecases (YouTube, Html) it doesn't seem required here
     // setSrc() {}
@@ -2676,23 +2670,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     currentTime: function currentTime() {
       return this._vimeoState.progress.seconds;
     },
-
     setCurrentTime: function setCurrentTime(time) {
       this._player.setCurrentTime(time);
     },
-
     volume: function volume() {
       return this._vimeoState.volume;
     },
-
     setVolume: function setVolume(volume) {
       return this._player.setVolume(volume);
     },
-
     muted: function muted() {
       return this._vimeoState.volume === 0;
     },
-
     setMuted: function setMuted(mute) {
       // if (this.muted()) {
       //   mute = false;
@@ -2707,37 +2696,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         this.trigger('volumechange');
       }, 50);
     },
-
     duration: function duration() {
       return this._vimeoState.progress.duration;
     },
-
     buffered: function buffered() {
       var progress = this._vimeoState.progress;
 
       return videojs.createTimeRange(0, progress.percent * progress.duration);
     },
-
     paused: function paused() {
       return !this._vimeoState.playing;
     },
-
     pause: function pause() {
       this._player.pause();
     },
-
     play: function play() {
       this._player.play();
     },
-
     ended: function ended() {
       return this._vimeoState.ended;
     },
-
     playbackRate: function playbackRate() {
       return this._player ? this._player.getPlaybackRate() : 1;
     },
-
     setPlaybackRate: function setPlaybackRate(suggestedRate) {
       if (!this._player) {
         return;
@@ -2745,7 +2726,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
       this._player.setPlaybackRate(suggestedRate);
     }
-
   });
 
   // Vimeo.prototype.featuresTimeupdateEvents = true;
@@ -2790,32 +2770,33 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   // };
 
   // @note: Copied over from YouTube — not sure this is relevant
-  //Vimeo.nativeSourceHandler.dispose = function () {};
+  // Vimeo.nativeSourceHandler.dispose = function () {};
 
-  //Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
+  // Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
 
   // Include the version number.
   Vimeo.VERSION = '0.1.1';
 
-  //ported over code from youtube
+  // ported over code from youtube
 
   function apiLoaded() {
-    //Vimeo._player.ready().then(function () {
+    // Vimeo._player.ready().then(function () {
     Vimeo.isApiReady = true;
 
     for (var i = 0; i < Vimeo.apiReadyQueue.length; ++i) {
       Vimeo.apiReadyQueue[i].initVimeoPlayer();
     }
-    //});
+    // });
   }
 
+  // iframe blocker to catch mouse events
   function injectCss() {
-    var css = // iframe blocker to catch mouse events
-    '.vjs-vimeo .vjs-iframe-blocker { display: none; }' + '.vjs-vimeo.vjs-user-inactive .vjs-iframe-blocker { display: block; }' + '.vjs-vimeo .vjs-poster { background-size: cover; }' + '.vjs-vimeo-mobile .vjs-big-play-button { display: none; }' + '.vjs-vimeo iframe { position: absolute; top: 0; left: 0; width: 100%; height:100%; }';
+    var css = '.vjs-vimeo .vjs-iframe-blocker { display: none; }' + '.vjs-vimeo.vjs-user-inactive .vjs-iframe-blocker { display: block; }' + '.vjs-vimeo .vjs-poster { background-size: cover; }' + '.vjs-vimeo-mobile .vjs-big-play-button { display: none; }' + '.vjs-vimeo iframe { position: absolute; top: 0; left: 0; width: 100%; height:100%; }';
 
     var head = document.head || document.getElementsByTagName('head')[0];
 
     var style = document.createElement('style');
+
     style.type = 'text/css';
 
     if (style.styleSheet) {
