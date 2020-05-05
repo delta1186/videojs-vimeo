@@ -38,13 +38,7 @@ THE SOFTWARE. */
   const Tech = videojs.getTech('Tech');
 
   const Vimeo = videojs.extend(Tech, {
-    // constructor(options, ready) {
-    //   super(options, ready);
 
-    //   injectCss();
-    //   this.setPoster(options.poster);
-    //   this.initVimeoPlayer();
-    // }
     constructor(options, ready) {
       Tech.call(this, options, ready);
 
@@ -100,11 +94,14 @@ THE SOFTWARE. */
         // vimeo is the only API on earth to reject hex color with leading #
         vimeoOptions.color = this.options_.color.replace(/^#/, '');
       }
+      if (this.options_.controls) {
+        vimeoOptions.controls = this.options_.controls;
+      }
 
       this._player = new VimeoPlayer(this.el(), vimeoOptions);
       this.initVimeoState();
 
-      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach((e) => {
+      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked', 'loaded', 'volumechange'].forEach((e) => {
         this._player.on(e, (progress) => {
           if (this._vimeoState.progress.duration !== progress.duration) {
             this.trigger('durationchange');
@@ -125,7 +122,10 @@ THE SOFTWARE. */
       });
       this._player.on('volumechange', (v) => (this._vimeoState.volume = v));
       this._player.on('error', (e) => this.trigger('error', e));
-
+      this._player.on("loaded", () => {
+        this.trigger("loadstart");
+        this.trigger("loadedmetadata");
+      });
       this.triggerReady();
     },
 
@@ -141,12 +141,8 @@ THE SOFTWARE. */
         }
       });
 
-      this._player
-        .getCurrentTime()
-        .then((time) => (state.progress.seconds = time));
-      this._player
-        .getDuration()
-        .then((time) => (state.progress.duration = time));
+      this._player .getCurrentTime() .then((time) => (state.progress.seconds = time));
+      this._player .getDuration() .then((time) => (state.progress.duration = time));
       this._player.getPaused().then((paused) => (state.playing = !paused));
       this._player.getVolume().then((volume) => (state.volume = volume));
     },
@@ -279,7 +275,7 @@ THE SOFTWARE. */
     }
   });
 
-  // Vimeo.prototype.featuresTimeupdateEvents = true;
+  Vimeo.prototype.featuresTimeupdateEvents = true;
 
   Vimeo.isSupported = function() {
     return true;
@@ -289,46 +285,12 @@ THE SOFTWARE. */
     return Vimeo.canPlayType(e.type);
   };
 
-  Vimeo.canPlayType = function(e) {
+  Vimeo.canPlayType = function (e) {
     return e === 'video/vimeo';
   };
-  // // Add Source Handler pattern functions to this tech
-  // Tech.withSourceHandlers(Vimeo);
-
-  // Vimeo.nativeSourceHandler = {};
-
-  // Vimeo.nativeSourceHandler.canPlayType = function (source) {
-  //   if (source === 'video/vimeo') {
-  //     return 'maybe';
-  //   }
-
-  //   return '';
-  // };
-
-  // Vimeo.nativeSourceHandler.canHandleSource = function (source) {
-  //   if (source.type) {
-  //     return Vimeo.nativeSourceHandler.canPlayType(source.type);
-  //   } else if (source.src) {
-  //     return Vimeo.nativeSourceHandler.canPlayType(source.src);
-  //   }
-
-  //   return '';
-  // };
-
-  // @note: Copied over from YouTube — not sure this is relevant
-  // Vimeo.nativeSourceHandler.handleSource = function (source, tech) {
-  //   tech.src(source.src);
-  // };
-
-  // @note: Copied over from YouTube — not sure this is relevant
-  // Vimeo.nativeSourceHandler.dispose = function () {};
-
-  // Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
 
   // Include the version number.
-  Vimeo.VERSION = '0.1.1';
-
-  // ported over code from youtube
+  Vimeo.VERSION = '0.1.2';
 
   function apiLoaded() {
     // Vimeo._player.ready().then(function () {
