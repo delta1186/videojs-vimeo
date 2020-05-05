@@ -16,19 +16,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. */
 /* global define, VimeoPlayer*/
-(function(root, factory) {
+(function (root, factory) {
   if (typeof exports === 'object' && typeof module !== 'undefined') {
     const videojs = require('video.js');
 
     module.exports = factory(videojs.default || videojs);
   } else if (typeof define === 'function' && define.amd) {
-    define(['videojs'], function(videojs) {
+    define(['videojs'], function (videojs) {
       return (root.Vimeo = factory(videojs));
     });
   } else {
     root.Vimeo = factory(root.videojs);
   }
-})(this, function(videojs) {
+})(this, function (videojs) {
   'use strict';
 
   const VimeoPlayer = require('@vimeo/player');
@@ -43,11 +43,10 @@ THE SOFTWARE. */
       Tech.call(this, options, ready);
 
       this.setPoster(options.poster);
-      // this.setSrc(this.options_.source, true);
 
       // Set the vjs-vimeo class to the player
       // Parent is not set yet so we have to wait a tick
-      this.setTimeout(function() {
+      this.setTimeout(function () {
         if (this.el_) {
           this.el_.parentNode.className += ' vjs-vimeo';
 
@@ -94,14 +93,14 @@ THE SOFTWARE. */
         // vimeo is the only API on earth to reject hex color with leading #
         vimeoOptions.color = this.options_.color.replace(/^#/, '');
       }
-      if (this.options_.controls) {
-        vimeoOptions.controls = this.options_.controls;
+      if (typeof this.options_.vmControls !== 'undefined') {
+        vimeoOptions.controls = this.options_.vmControls;
       }
 
       this._player = new VimeoPlayer(this.el(), vimeoOptions);
       this.initVimeoState();
 
-      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked', 'loaded', 'volumechange'].forEach((e) => {
+      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach((e) => {
         this._player.on(e, (progress) => {
           if (this._vimeoState.progress.duration !== progress.duration) {
             this.trigger('durationchange');
@@ -120,7 +119,6 @@ THE SOFTWARE. */
         this._vimeoState.playing = false;
         this._vimeoState.ended = true;
       });
-      this._player.on('volumechange', (v) => (this._vimeoState.volume = v));
       this._player.on('error', (e) => this.trigger('error', e));
       this._player.on("loaded", () => {
         this.trigger("loadstart");
@@ -133,7 +131,7 @@ THE SOFTWARE. */
       const state = (this._vimeoState = {
         ended: false,
         playing: false,
-        volume: 0,
+        volume: 1,
         progress: {
           seconds: 0,
           percent: 0,
@@ -141,10 +139,9 @@ THE SOFTWARE. */
         }
       });
 
-      this._player .getCurrentTime() .then((time) => (state.progress.seconds = time));
-      this._player .getDuration() .then((time) => (state.progress.duration = time));
+      this._player.getCurrentTime().then((time) => (state.progress.seconds = time));
+      this._player.getDuration().then((time) => (state.progress.duration = time));
       this._player.getPaused().then((paused) => (state.playing = !paused));
-      this._player.getVolume().then((volume) => (state.volume = volume));
     },
 
     createEl() {
@@ -161,7 +158,7 @@ THE SOFTWARE. */
 
       divWrapper.appendChild(div);
 
-      if (!_isOnMobile && !this.options_.ytControls) {
+      if (!_isOnMobile && !this.options_.vmControls) {
         const divBlocker = document.createElement('div');
 
         divBlocker.setAttribute('class', 'vjs-iframe-blocker');
@@ -171,7 +168,7 @@ THE SOFTWARE. */
         );
 
         // In case the blocker is still there and we want to pause
-        divBlocker.onclick = function() {
+        divBlocker.onclick = function () {
           this.pause();
         }.bind(this);
 
@@ -222,18 +219,11 @@ THE SOFTWARE. */
     },
 
     setMuted(mute) {
-      // if (this.muted()) {
-      //   mute = false;
-      //   this._vimeoState.volume = 1;
-      // } else {
-      //   this._vimeoState.volume = 0;
-      // }
-
       this._player.setMuted(mute);
 
-      this.setTimeout(function() {
-        this.trigger('volumechange');
-      }, 50);
+      this._vimeoState.volume = mute ? 0 : 1;
+
+      this.trigger('volumechange');
     },
 
     duration() {
@@ -277,11 +267,11 @@ THE SOFTWARE. */
 
   Vimeo.prototype.featuresTimeupdateEvents = true;
 
-  Vimeo.isSupported = function() {
+  Vimeo.isSupported = function () {
     return true;
   };
 
-  Vimeo.canPlaySource = function(e) {
+  Vimeo.canPlaySource = function (e) {
     return Vimeo.canPlayType(e.type);
   };
 

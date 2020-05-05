@@ -2504,7 +2504,6 @@ THE SOFTWARE. */
       Tech.call(this, options, ready);
 
       this.setPoster(options.poster);
-      // this.setSrc(this.options_.source, true);
 
       // Set the vjs-vimeo class to the player
       // Parent is not set yet so we have to wait a tick
@@ -2556,14 +2555,14 @@ THE SOFTWARE. */
         // vimeo is the only API on earth to reject hex color with leading #
         vimeoOptions.color = this.options_.color.replace(/^#/, '');
       }
-      if (this.options_.controls) {
-        vimeoOptions.controls = this.options_.controls;
+      if (typeof this.options_.vmControls !== 'undefined') {
+        vimeoOptions.controls = this.options_.vmControls;
       }
 
       this._player = new VimeoPlayer(this.el(), vimeoOptions);
       this.initVimeoState();
 
-      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked', 'loaded', 'volumechange'].forEach(function (e) {
+      ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach(function (e) {
         _this._player.on(e, function (progress) {
           if (_this._vimeoState.progress.duration !== progress.duration) {
             _this.trigger('durationchange');
@@ -2584,9 +2583,6 @@ THE SOFTWARE. */
         _this._vimeoState.playing = false;
         _this._vimeoState.ended = true;
       });
-      this._player.on('volumechange', function (v) {
-        return _this._vimeoState.volume = v;
-      });
       this._player.on('error', function (e) {
         return _this.trigger('error', e);
       });
@@ -2600,7 +2596,7 @@ THE SOFTWARE. */
       var state = this._vimeoState = {
         ended: false,
         playing: false,
-        volume: 0,
+        volume: 1,
         progress: {
           seconds: 0,
           percent: 0,
@@ -2617,9 +2613,6 @@ THE SOFTWARE. */
       this._player.getPaused().then(function (paused) {
         return state.playing = !paused;
       });
-      this._player.getVolume().then(function (volume) {
-        return state.volume = volume;
-      });
     },
     createEl: function createEl() {
       var div = document.createElement('div');
@@ -2632,7 +2625,7 @@ THE SOFTWARE. */
 
       divWrapper.appendChild(div);
 
-      if (!_isOnMobile && !this.options_.ytControls) {
+      if (!_isOnMobile && !this.options_.vmControls) {
         var divBlocker = document.createElement('div');
 
         divBlocker.setAttribute('class', 'vjs-iframe-blocker');
@@ -2682,18 +2675,11 @@ THE SOFTWARE. */
       return this._vimeoState.volume === 0;
     },
     setMuted: function setMuted(mute) {
-      // if (this.muted()) {
-      //   mute = false;
-      //   this._vimeoState.volume = 1;
-      // } else {
-      //   this._vimeoState.volume = 0;
-      // }
-
       this._player.setMuted(mute);
 
-      this.setTimeout(function () {
-        this.trigger('volumechange');
-      }, 50);
+      this._vimeoState.volume = mute ? 0 : 1;
+
+      this.trigger('volumechange');
     },
     duration: function duration() {
       return this._vimeoState.progress.duration;
